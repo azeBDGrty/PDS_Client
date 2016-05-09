@@ -5,7 +5,7 @@
  */
 package com.pds.entities;
 
-import Enums.Sexe;
+import com.pds.enums.Sexe;
 import java.sql.Timestamp;
 import java.util.logging.Logger;
 

@@ -5,7 +5,7 @@
  */
 package com.pds.entities;
 
-import Enums.Situation;
+import com.pds.enums.Situation;
 import java.sql.Timestamp;
 
 /**

@@ -5,8 +5,8 @@
  */
 package com.pds.entities;
 
-import Enums.TypeEmprunt;
-import Enums.TypePret;
+import com.pds.enums.TypeEmprunt;
+import com.pds.enums.TypePret;
 import java.sql.Timestamp;
 
 /**
