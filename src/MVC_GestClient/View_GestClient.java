@@ -5,7 +5,7 @@
  */
 package MVC_GestClient;
 
-import Entities.Client;
+import com.pds.entities.Client;
 import ImplObs.AbstractObservable;
 import ImplObs.IObserver;
 import java.util.List;

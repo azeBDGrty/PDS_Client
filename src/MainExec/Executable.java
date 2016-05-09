@@ -5,7 +5,7 @@
  */
 package MainExec;
 
-import Entities.Anonyme;
+import com.pds.entities.Anonyme;
 import HandleServer.AnonymeHandle;
 import InOutData.InPutData;
 import InOutData.OutPutData;

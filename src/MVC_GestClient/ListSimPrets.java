@@ -5,8 +5,8 @@
  */
 package MVC_GestClient;
 
-import Entities.Client;
-import Entities.SimulationPret;
+import com.pds.entities.Client;
+import com.pds.entities.SimulationPret;
 import ImplObs.AbstractObservable;
 import java.util.ArrayList;
 import java.util.List;

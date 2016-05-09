@@ -5,10 +5,10 @@
  */
 package HandleServer;
 
-import Entities.Account;
-import Entities.Client;
-import Entities.Conseiller;
-import Entities.Personne;
+import com.pds.entities.Account;
+import com.pds.entities.Client;
+import com.pds.entities.Conseiller;
+import com.pds.entities.Personne;
 import InOutData.InPutData;
 import InOutData.OutPutData;
 import ProtocoleNetwork.RoleUser;

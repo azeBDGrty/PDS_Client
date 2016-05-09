@@ -5,7 +5,7 @@
  */
 package MVC_GestClient;
 
-import Entities.SimulationPret;
+import com.pds.entities.SimulationPret;
 import java.awt.Color;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;

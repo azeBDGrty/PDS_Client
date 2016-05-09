@@ -5,7 +5,18 @@
  */
 package HandleServer;
 
-import Entities.*;
+import com.pds.entities.Pays;
+import com.pds.entities.InfoPersonnel;
+import com.pds.entities.Account;
+import com.pds.entities.Agence;
+import com.pds.entities.Client;
+import com.pds.entities.Region;
+import com.pds.entities.Personne;
+import com.pds.entities.Departement;
+import com.pds.entities.Taux_directeur;
+import com.pds.entities.SimulationPret;
+import com.pds.entities.Conseiller;
+import com.pds.entities.CalculPret;
 import Enums.Sexe;
 import Enums.Situation;
 import Enums.TypeEmprunt;
