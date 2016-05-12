@@ -5,13 +5,22 @@
 */
 package com.pds.graphics;
 
+import com.pds.entities.CalculPret;
 import com.pds.entities.SimulationPret;
+import com.pds.entities.Taux_directeur;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -20,13 +29,15 @@ import javax.swing.SwingUtilities;
  * @author Nodaro
  */
 public class AmortisationTable extends javax.swing.JFrame {
-   
+    
     private JFrame frame;
-
+    private SimulationPret simulationPret;
+    private CalculPret calculPret;
+    
     /**
      * Creates new form AmortisationTable
      */
-    public AmortisationTable() {
+    public AmortisationTable() throws SQLException {
         initComponents();
         frame = (JFrame) SwingUtilities.getWindowAncestor(this);
         jTable1.getColumnModel().getColumn(0).setPreferredWidth(30);
@@ -37,7 +48,87 @@ public class AmortisationTable extends javax.swing.JFrame {
         jTable1.getColumnModel().getColumn(5).setPreferredWidth(60);
         jTable1.getColumnModel().getColumn(6).setPreferredWidth(60);
         this.setTitle("Tableau d'amortissement");
-        SimulationPret s=new SimulationPret();
+        
+        //récupération des données dans la base, + peuplement de simulationpret
+        calculPret=new CalculPret();
+        Taux_directeur td=new Taux_directeur();
+        calculPret.setTauxDirecteur(td);
+        setAmortisationCalcPret(calculPret, 1,td);
+        simulationPret=new SimulationPret();
+        
+        simulationPret.setCalcPret(calculPret);
+        setAmortisationData(simulationPret,1);
+        calcMensualite(simulationPret);
+        List<Double> capAmorti=new ArrayList<Double>();
+        capAmorti=this.calcCapAmmort(simulationPret);
+        
+        
+        
+        
+    }
+    
+    
+    //récupération des données du client ayant l'id idClient
+    public void setAmortisationData(SimulationPret simPret, int idClient) throws SQLException{
+        DbConnection.connection();
+        Statement st=DbConnection.connection.createStatement();
+        String sql = ("SELECT * FROM simul_pret WHERE id_client="+idClient);
+        ResultSet rs = st.executeQuery(sql);
+        if(rs.next()) {
+            
+            simPret.setMtPret(rs.getDouble("mt_pret"));
+            simPret.setDureePret(rs.getInt("duree_pret"));
+            
+        }
+        
+        DbConnection.connection.close();
+        
+    }
+    
+    public void setAmortisationCalcPret(CalculPret cp, int idClient, Taux_directeur td) throws SQLException{
+        DbConnection.connection();
+        Statement st=DbConnection.connection.createStatement();
+        String sql = ("SELECT * FROM simul_pret,calcpret,taux_directeur WHERE id_client="+idClient +" AND simul_pret.id_calcPret=calcPret.id_calcPret "
+                + "AND calcpret.id_tauxDirecteur=taux_directeur.id_tauxDirecteur");
+        ResultSet rs = st.executeQuery(sql);
+        if(rs.next()) {
+            td.setValue(rs.getDouble("valeur"));
+            cp.setCoef_assurance(rs.getDouble("coef_assurance"));
+            cp.setT_marge(rs.getDouble("t_marge"));
+        }
+        System.out.println(cp);
+        DbConnection.connection.close();
+        
+    }
+    
+    //calcule la mensualité d'un prêt
+    public double calcMensualite(SimulationPret simPret){
+        //double mensualite = (montantPret*(teag/100)/12)        /    (1-Math.pow(((1+(teag/100/12))), -24))+ (montantAssurance/dureePret);
+        double mtTTAssurance = (simPret.getMtPret()*simPret.getDureePret()*simPret.getCalcPret().getCoef_assurance())/1200;
+        double TEAG = simPret.getCalcPret().getTauxDirecteur().getValue() + simPret.getCalcPret().getT_marge();
+        double mensualite = (simPret.getMtPret()*(TEAG/100)/12)        /    (1-Math.pow(((1+(TEAG/100/12))), -simPret.getDureePret()))+ (mtTTAssurance/simPret.getDureePret());
+        mensualite=(double)Math.round(mensualite * 100d) / 100d; // on arrondit à 2 décimale
+
+        return mensualite;
+    }
+    
+    public double calcAssurance(SimulationPret simPret){
+        double mtTTAssurance = (simPret.getMtPret()*simPret.getDureePret()*simPret.getCalcPret().getCoef_assurance())/1200;
+        return mtTTAssurance;
+    }
+    
+    //retourne une liste de toute les valeurs des capitaux amortis mensuels
+    public List<Double> calcCapAmmort(SimulationPret simPret){
+        List<Double> capsAmort = new ArrayList<>();
+        
+        double TEAG = simPret.getCalcPret().getTauxDirecteur().getValue() + simPret.getCalcPret().getT_marge();
+        double varCapAmort = (simPret.getMtPret()*TEAG/100/12)  /  (Math.pow((1+TEAG/100/12), simPret.getDureePret()) -1);
+        capsAmort.add((double)Math.round(varCapAmort* 100d) / 100d);
+        
+        for(int i = 1;i<=simPret.getDureePret();i++)
+            capsAmort.add((double)Math.round(Math.pow((1 + TEAG/100/12), i-1)*varCapAmort * 100d) / 100d);
+        
+        return capsAmort;
     }
     
     /**
@@ -120,18 +211,18 @@ public class AmortisationTable extends javax.swing.JFrame {
         // TODO add your handling code here:
         
         PrinterJob job = PrinterJob.getPrinterJob();
-
+        
         PageFormat format = job.defaultPage();
         format.setOrientation(PageFormat.LANDSCAPE);
         PageFormat postformat = job.pageDialog(format);
         job.setPrintable(new Printer(frame), format);
-         
+        
         try{
             if(job.printDialog()) job.print();
         }
         catch(Exception e){e.printStackTrace();}
         
-
+        
     }//GEN-LAST:event_jMenuItem1ActionPerformed
     
     /**
@@ -164,7 +255,11 @@ public class AmortisationTable extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new AmortisationTable().setVisible(true);
+                try {
+                    new AmortisationTable().setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(AmortisationTable.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }

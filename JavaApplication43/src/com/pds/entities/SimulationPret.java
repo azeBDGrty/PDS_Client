@@ -29,6 +29,11 @@ public class SimulationPret {
     public SimulationPret() {
     }
 
+    @Override
+    public String toString() {
+        return "SimulationPret{" + "idSimPret=" + idSimPret + ", dateSimulation=" + dateSimulation + ", dateContraction=" + dateContraction + ", dureePret=" + dureePret + ", mtPret=" + mtPret + ", typePret=" + typePret + ", blocked=" + blocked + ", calcPret=" + calcPret + ", typeEmprunt=" + typeEmprunt + '}';
+    }
+
     public SimulationPret(int idSimPret, Timestamp dateSimulation, Timestamp dateContraction, int dureePret, double mtPret, TypePret typePret, boolean blocked, CalculPret calcPret) {
         this.idSimPret = idSimPret;
         this.dateSimulation = dateSimulation;

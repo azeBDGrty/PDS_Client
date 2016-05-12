@@ -374,7 +374,7 @@ public class PanelSimPret extends javax.swing.JPanel {
         this.iTTInteret.setText(mtTTInteret+"");
         this.iTTAssurance.setText(mtTTAssurance+"");
         
-        //double mensualite = (mtTTInteret + mtTTAssurance + simPret.getMtPret())/simPret.getDureePret();
+        
         double mensualite = (simPret.getMtPret()*(TEAG/100)/12)        /    (1-Math.pow(((1+(TEAG/100/12))), -24))+ (mtTTAssurance/simPret.getDureePret());
         
         

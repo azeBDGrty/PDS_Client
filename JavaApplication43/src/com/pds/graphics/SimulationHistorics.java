@@ -65,9 +65,7 @@ public class SimulationHistorics extends javax.swing.JFrame {
                     float tauxAssurance= Float.parseFloat(jTable1.getValueAt(jTable1.getSelectedRow(), 6).toString());
                     float tauxMarge= Float.parseFloat(jTable1.getValueAt(jTable1.getSelectedRow(), 7).toString());
                     float fraisDossier= Float.parseFloat(jTable1.getValueAt(jTable1.getSelectedRow(), 8).toString());
-                    RefundEvolutionGraphic chart = new RefundEvolutionGraphic(
-                            "Evolution du prêt" ,
-                            "Evolution du montant à rembourser en fonction du temps", montant, duree,  tauxMarge, tauxAssurance);
+
                     
                     
                 }

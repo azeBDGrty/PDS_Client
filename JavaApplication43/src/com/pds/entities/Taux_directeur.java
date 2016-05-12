@@ -24,6 +24,11 @@ public class Taux_directeur {
     public double getValue() {
         return value;
     }
+
+    public void setValue(double value) {
+        this.value = value;
+    }
+    
     
     
     

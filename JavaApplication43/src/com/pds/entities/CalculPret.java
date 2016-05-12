@@ -29,6 +29,11 @@ public class CalculPret {
         this.tauxDirecteur = tauxDirecteur;
     }
 
+    @Override
+    public String toString() {
+        return "CalculPret{" + "id_calcPret=" + id_calcPret + ", coef_assurance=" + coef_assurance + ", t_marge=" + t_marge + ", f_dossier=" + f_dossier + ", tauxDirecteur=" + tauxDirecteur + '}';
+    }
+
     
     
     
