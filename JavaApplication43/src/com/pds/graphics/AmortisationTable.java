@@ -5,6 +5,7 @@
 */
 package com.pds.graphics;
 
+import com.pds.entities.SimulationPret;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
@@ -36,7 +37,7 @@ public class AmortisationTable extends javax.swing.JFrame {
         jTable1.getColumnModel().getColumn(5).setPreferredWidth(60);
         jTable1.getColumnModel().getColumn(6).setPreferredWidth(60);
         this.setTitle("Tableau d'amortissement");
-        System.out.println("test");
+        SimulationPret s=new SimulationPret();
     }
     
     /**

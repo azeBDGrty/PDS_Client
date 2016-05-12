@@ -9,7 +9,9 @@ import com.pds.entities.SimulationPret;
 import java.awt.Color;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
@@ -358,16 +360,56 @@ public class PanelSimPret extends javax.swing.JPanel {
         this.iDateContraction.setText(new SimpleDateFormat("MM/dd/yyyy").format(new Date(simPret.getDateContraction().getTime())));
         this.iDureePret.setText(simPret.getDureePret()+"");
         this.iMtPret.setText(simPret.getMtPret()+"");
+        
         double TEAG = simPret.getCalcPret().getTauxDirecteur().getValue() + simPret.getCalcPret().getT_marge();
+        
+        
         this.iTauxInteret.setText(TEAG+"");
         this.iTauxAssurance.setText(simPret.getCalcPret().getCoef_assurance()+"");
+        
         double mtTTInteret = (simPret.getMtPret()*simPret.getDureePret()*TEAG)/1200;
+        
         double mtTTAssurance = (simPret.getMtPret()*simPret.getDureePret()*simPret.getCalcPret().getCoef_assurance())/1200;
+        
         this.iTTInteret.setText(mtTTInteret+"");
         this.iTTAssurance.setText(mtTTAssurance+"");
-        double mensualite = (mtTTInteret + mtTTAssurance + simPret.getMtPret())/simPret.getDureePret();
+        
+        //double mensualite = (mtTTInteret + mtTTAssurance + simPret.getMtPret())/simPret.getDureePret();
+        double mensualite = (simPret.getMtPret()*(TEAG/100)/12)        /    (1-Math.pow(((1+(TEAG/100/12))), -24))+ (mtTTAssurance/simPret.getDureePret());
+        
+        
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits ( 2 ) ; //arrondi à 2 chiffres apres la virgules 
+        df.setMinimumFractionDigits ( 2 ) ; 
+        df.setDecimalSeparatorAlwaysShown ( false ) ; 
+        
+        
+        double somme = 0;
+        for(Double value : calcCapAmmort(simPret)){   
+            somme +=value;
+        }
+        System.out.println("La somme est : "+ df.format(somme));
+        System.out.println("\n\n\n");
+        
+        
         this.iRembourssement.setText(mensualite+"");
         this.iTTPret.setText(mensualite*simPret.getDureePret()+"");
+    }
+    
+    
+
+    public List<Double> calcCapAmmort(SimulationPret simPret){
+        List<Double> capsAmort = new ArrayList<>();
+        
+        double TEAG = simPret.getCalcPret().getTauxDirecteur().getValue() + simPret.getCalcPret().getT_marge();
+        double varCapAmort = (simPret.getMtPret()*TEAG/100/12)  /  (Math.pow((1+TEAG/100/12), simPret.getDureePret()) -1);
+        capsAmort.add(varCapAmort);
+        
+        for(int i = 1;i<=simPret.getDureePret();i++)
+            capsAmort.add(Math.pow((1 + TEAG/100/12), i-1)*varCapAmort);
+        
+        
+        return capsAmort;
     }
 
     public JToggleButton gettSelectionner() {
