@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -41,8 +43,8 @@ public class AmortisationTable extends javax.swing.JFrame {
         initComponents();
         frame = (JFrame) SwingUtilities.getWindowAncestor(this);
         jTable1.getColumnModel().getColumn(0).setPreferredWidth(30);
-        jTable1.getColumnModel().getColumn(1).setPreferredWidth(30);
-        jTable1.getColumnModel().getColumn(2).setPreferredWidth(120);
+        jTable1.getColumnModel().getColumn(1).setPreferredWidth(330);
+        jTable1.getColumnModel().getColumn(2).setPreferredWidth(80);
         jTable1.getColumnModel().getColumn(3).setPreferredWidth(60);
         jTable1.getColumnModel().getColumn(4).setPreferredWidth(170);
         jTable1.getColumnModel().getColumn(5).setPreferredWidth(60);
@@ -61,8 +63,21 @@ public class AmortisationTable extends javax.swing.JFrame {
         calcMensualite(simulationPret);
         List<Double> capAmorti=new ArrayList<Double>();
         capAmorti=this.calcCapAmmort(simulationPret);
+        List<Double> capRestant=new ArrayList<Double>();
+        capRestant=calcCapRestant( simulationPret);
         
-        
+        double assurance=calcAssurance(simulationPret);
+        double totalAPayer=calcMensualite(simulationPret);
+        String col[] = {"Mois", "Date", "Montant remboursé", "Intérêts", "Montant restant à rembourser", "Assurance", "Coût total"};
+        DefaultTableModel dtm = new DefaultTableModel(col, 0);
+        jTable1.setModel(dtm);
+        Object[] objs = {1, "Arsenal", 35, 11, 2, 2, 15, 30, 11, 19};
+        for (int i=0;i<simulationPret.getDureePret();i++){
+            Object[] data = {i+1, "t", capAmorti.get(i), "interets",capRestant.get(i),assurance,totalAPayer
+            };
+            dtm.addRow(data);
+        }
+         
         
         
     }
@@ -108,13 +123,28 @@ public class AmortisationTable extends javax.swing.JFrame {
         double TEAG = simPret.getCalcPret().getTauxDirecteur().getValue() + simPret.getCalcPret().getT_marge();
         double mensualite = (simPret.getMtPret()*(TEAG/100)/12)        /    (1-Math.pow(((1+(TEAG/100/12))), -simPret.getDureePret()))+ (mtTTAssurance/simPret.getDureePret());
         mensualite=(double)Math.round(mensualite * 100d) / 100d; // on arrondit à 2 décimale
-
+        
         return mensualite;
     }
     
     public double calcAssurance(SimulationPret simPret){
         double mtTTAssurance = (simPret.getMtPret()*simPret.getDureePret()*simPret.getCalcPret().getCoef_assurance())/1200;
+        mtTTAssurance=mtTTAssurance/simPret.getDureePret();
         return mtTTAssurance;
+    }
+    
+    public List<Double> calcCapRestant(SimulationPret simPret){
+        List<Double> capsRestant = new ArrayList<>();
+        List<Double> capsAmort = new ArrayList<>();
+        capsAmort=calcCapAmmort(simPret);
+        double initCapRestant=simPret.getMtPret()-capsAmort.get(0);
+        capsRestant.add(initCapRestant);
+        for (int i=0;i<capsAmort.size();i++){
+            double capsRestantdu=capsRestant.get(i)-capsAmort.get(i);
+            capsRestant.add(capsRestantdu);
+        }
+        System.out.println(capsRestant);
+        return capsRestant;
     }
     
     //retourne une liste de toute les valeurs des capitaux amortis mensuels
@@ -125,7 +155,7 @@ public class AmortisationTable extends javax.swing.JFrame {
         double varCapAmort = (simPret.getMtPret()*TEAG/100/12)  /  (Math.pow((1+TEAG/100/12), simPret.getDureePret()) -1);
         capsAmort.add((double)Math.round(varCapAmort* 100d) / 100d);
         
-        for(int i = 1;i<=simPret.getDureePret();i++)
+        for(int i = 2;i<=simPret.getDureePret();i++)
             capsAmort.add((double)Math.round(Math.pow((1 + TEAG/100/12), i-1)*varCapAmort * 100d) / 100d);
         
         return capsAmort;
@@ -188,7 +218,7 @@ public class AmortisationTable extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 762, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1106, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addGap(22, 22, 22)
                 .addComponent(jLabel1)
@@ -200,8 +230,8 @@ public class AmortisationTable extends javax.swing.JFrame {
                 .addGap(8, 8, 8)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(88, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
