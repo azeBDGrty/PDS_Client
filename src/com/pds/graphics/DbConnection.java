@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package com.pds.graphics;
+
 /**
  *
  * @author Nodaro
@@ -34,4 +35,6 @@ public class DbConnection {
             throw new IllegalStateException("Cannot connect the database!", e);
         }
     }
+    
+
 }
