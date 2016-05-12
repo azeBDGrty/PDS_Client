@@ -36,6 +36,7 @@ public class AmortisationTable extends javax.swing.JFrame {
         jTable1.getColumnModel().getColumn(5).setPreferredWidth(60);
         jTable1.getColumnModel().getColumn(6).setPreferredWidth(60);
         this.setTitle("Tableau d'amortissement");
+        System.out.println("test");
     }
     
     /**
