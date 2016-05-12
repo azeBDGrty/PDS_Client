@@ -22,7 +22,7 @@ public abstract class AbstractHandle extends AbstractObservable implements Runna
     
     private Thread T;
     protected boolean running;
-    
+    int j;
     
     protected InPutData in;
     protected OutPutData out;
