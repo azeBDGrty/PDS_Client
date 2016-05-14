@@ -22,9 +22,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 /**
  *
@@ -42,124 +46,57 @@ public class AmortisationTable extends javax.swing.JFrame {
     public AmortisationTable() throws SQLException {
         initComponents();
         frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-        jTable1.getColumnModel().getColumn(0).setPreferredWidth(30);
-        jTable1.getColumnModel().getColumn(1).setPreferredWidth(330);
-        jTable1.getColumnModel().getColumn(2).setPreferredWidth(80);
-        jTable1.getColumnModel().getColumn(3).setPreferredWidth(60);
-        jTable1.getColumnModel().getColumn(4).setPreferredWidth(170);
-        jTable1.getColumnModel().getColumn(5).setPreferredWidth(60);
-        jTable1.getColumnModel().getColumn(6).setPreferredWidth(60);
+        
+        
         this.setTitle("Tableau d'amortissement");
         
         //récupération des données dans la base, + peuplement de simulationpret
         calculPret=new CalculPret();
         Taux_directeur td=new Taux_directeur();
         calculPret.setTauxDirecteur(td);
-        setAmortisationCalcPret(calculPret, 1,td);
         simulationPret=new SimulationPret();
-        
         simulationPret.setCalcPret(calculPret);
-        setAmortisationData(simulationPret,1);
-        calcMensualite(simulationPret);
-        List<Double> capAmorti=new ArrayList<Double>();
-        capAmorti=this.calcCapAmmort(simulationPret);
-        List<Double> capRestant=new ArrayList<Double>();
-        capRestant=calcCapRestant( simulationPret);
+        simulationPret.setAmortisationCalcPret(calculPret, 1,td);
         
-        double assurance=calcAssurance(simulationPret);
-        double totalAPayer=calcMensualite(simulationPret);
-        String col[] = {"Mois", "Date", "Montant remboursé", "Intérêts", "Montant restant à rembourser", "Assurance", "Coût total"};
+        List<Double> capAmorti=new ArrayList<Double>();
+        capAmorti=simulationPret.calcCapAmmort();   //capital amort
+        List<Double> capRestant=new ArrayList<Double>();
+        capRestant=simulationPret.calcCapRestant(); //captital restant
+        List<Double> calcInterets=new ArrayList<Double>();
+        calcInterets=simulationPret.calcInterets(); //interets
+        double assurance=simulationPret.calcAssurance();    //asurance
+        double totalAPayer=simulationPret.calcMensualite(); //total a payer
+        
+        String col[] = {"Mois", "Montant remboursé", "Intérêts", "Montant restant à rembourser", "Assurance", "Coût total"};
         DefaultTableModel dtm = new DefaultTableModel(col, 0);
         jTable1.setModel(dtm);
-        Object[] objs = {1, "Arsenal", 35, 11, 2, 2, 15, 30, 11, 19};
-        for (int i=0;i<simulationPret.getDureePret();i++){
-            Object[] data = {i+1, "t", capAmorti.get(i), "interets",capRestant.get(i),assurance,totalAPayer
+        for (int i=0;i<simulationPret.getDureePret();i++){      //affichage des valeurs dans les cellules
+            Object[] data = {i+1, capAmorti.get(i), calcInterets.get(i),capRestant.get(i),assurance,totalAPayer
             };
             dtm.addRow(data);
         }
-         
+        jTable1.getColumnModel().getColumn(0).setPreferredWidth(20);        //taille des colonnes
+        jTable1.getColumnModel().getColumn(1).setPreferredWidth(80);
+        jTable1.getColumnModel().getColumn(2).setPreferredWidth(60);
+        jTable1.getColumnModel().getColumn(3).setPreferredWidth(140);
+        jTable1.getColumnModel().getColumn(4).setPreferredWidth(70);
+        jTable1.getColumnModel().getColumn(5).setPreferredWidth(60);
+        
+        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+        rightRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i=0;i<jTable1.getColumnCount();i++)
+            jTable1.getColumnModel().getColumn(i).setCellRenderer(rightRenderer);   //centrer les valeurs du jtable
+        ((DefaultTableCellRenderer)jTable1.getTableHeader().getDefaultRenderer())
+                .setHorizontalAlignment(JLabel.CENTER);         //centrer les titres du header
         
         
-    }
-    
-    
-    //récupération des données du client ayant l'id idClient
-    public void setAmortisationData(SimulationPret simPret, int idClient) throws SQLException{
-        DbConnection.connection();
-        Statement st=DbConnection.connection.createStatement();
-        String sql = ("SELECT * FROM simul_pret WHERE id_client="+idClient);
-        ResultSet rs = st.executeQuery(sql);
-        if(rs.next()) {
-            
-            simPret.setMtPret(rs.getDouble("mt_pret"));
-            simPret.setDureePret(rs.getInt("duree_pret"));
-            
-        }
-        
-        DbConnection.connection.close();
         
     }
     
-    public void setAmortisationCalcPret(CalculPret cp, int idClient, Taux_directeur td) throws SQLException{
-        DbConnection.connection();
-        Statement st=DbConnection.connection.createStatement();
-        String sql = ("SELECT * FROM simul_pret,calcpret,taux_directeur WHERE id_client="+idClient +" AND simul_pret.id_calcPret=calcPret.id_calcPret "
-                + "AND calcpret.id_tauxDirecteur=taux_directeur.id_tauxDirecteur");
-        ResultSet rs = st.executeQuery(sql);
-        if(rs.next()) {
-            td.setValue(rs.getDouble("valeur"));
-            cp.setCoef_assurance(rs.getDouble("coef_assurance"));
-            cp.setT_marge(rs.getDouble("t_marge"));
-        }
-        System.out.println(cp);
-        DbConnection.connection.close();
-        
-    }
     
-    //calcule la mensualité d'un prêt
-    public double calcMensualite(SimulationPret simPret){
-        //double mensualite = (montantPret*(teag/100)/12)        /    (1-Math.pow(((1+(teag/100/12))), -24))+ (montantAssurance/dureePret);
-        double mtTTAssurance = (simPret.getMtPret()*simPret.getDureePret()*simPret.getCalcPret().getCoef_assurance())/1200;
-        double TEAG = simPret.getCalcPret().getTauxDirecteur().getValue() + simPret.getCalcPret().getT_marge();
-        double mensualite = (simPret.getMtPret()*(TEAG/100)/12)        /    (1-Math.pow(((1+(TEAG/100/12))), -simPret.getDureePret()))+ (mtTTAssurance/simPret.getDureePret());
-        mensualite=(double)Math.round(mensualite * 100d) / 100d; // on arrondit à 2 décimale
-        
-        return mensualite;
-    }
     
-    public double calcAssurance(SimulationPret simPret){
-        double mtTTAssurance = (simPret.getMtPret()*simPret.getDureePret()*simPret.getCalcPret().getCoef_assurance())/1200;
-        mtTTAssurance=mtTTAssurance/simPret.getDureePret();
-        return mtTTAssurance;
-    }
     
-    public List<Double> calcCapRestant(SimulationPret simPret){
-        List<Double> capsRestant = new ArrayList<>();
-        List<Double> capsAmort = new ArrayList<>();
-        capsAmort=calcCapAmmort(simPret);
-        double initCapRestant=simPret.getMtPret()-capsAmort.get(0);
-        capsRestant.add(initCapRestant);
-        for (int i=0;i<capsAmort.size();i++){
-            double capsRestantdu=capsRestant.get(i)-capsAmort.get(i);
-            capsRestant.add(capsRestantdu);
-        }
-        System.out.println(capsRestant);
-        return capsRestant;
-    }
     
-    //retourne une liste de toute les valeurs des capitaux amortis mensuels
-    public List<Double> calcCapAmmort(SimulationPret simPret){
-        List<Double> capsAmort = new ArrayList<>();
-        
-        double TEAG = simPret.getCalcPret().getTauxDirecteur().getValue() + simPret.getCalcPret().getT_marge();
-        double varCapAmort = (simPret.getMtPret()*TEAG/100/12)  /  (Math.pow((1+TEAG/100/12), simPret.getDureePret()) -1);
-        capsAmort.add((double)Math.round(varCapAmort* 100d) / 100d);
-        
-        for(int i = 2;i<=simPret.getDureePret();i++)
-            capsAmort.add((double)Math.round(Math.pow((1 + TEAG/100/12), i-1)*varCapAmort * 100d) / 100d);
-        
-        return capsAmort;
-    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -216,13 +153,15 @@ public class AmortisationTable extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1106, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addComponent(jLabel1)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(22, 22, 22)
+                        .addComponent(jLabel1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 746, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 22, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
