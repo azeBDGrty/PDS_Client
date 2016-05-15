@@ -9,9 +9,6 @@ package com.pds.graphics;
  *
  * @author Nodaro
  */
-import javax.swing.*;
-import java.lang.Float;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
