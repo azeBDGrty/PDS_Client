@@ -14,11 +14,8 @@ import java.awt.Color;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -39,18 +36,18 @@ public class LineChart extends ApplicationFrame {
     private static CalculPret calculPret;
     private static SimulationPret simPret;
     
-    public LineChart() throws SQLException {
+    public LineChart(int idClient) throws SQLException {
         super("Graphique d'amortissement");
-        init(1);
-        JPanel chartPanel = createChartPanel();
-        add(chartPanel, BorderLayout.CENTER);
-        
-        setSize(640, 480);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        init(idClient);
+        //JPanel chartPanel = createChartPanel();
+        //add(chartPanel, BorderLayout.CENTER);
+        //setSize(640, 480);
+        //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //setLocationRelativeTo(null);
+        //this.setVisible(true);
     }
     
-    private JPanel createChartPanel() {
+    public JPanel createChartPanel() {
         // creates a line chart object
         // returns the chart panel
         
@@ -99,6 +96,7 @@ public class LineChart extends ApplicationFrame {
         };
         
         renderer.setBaseToolTipGenerator(xyToolTipGenerator);
+        
         return new ChartPanel(chart);
     }
     
@@ -127,8 +125,7 @@ public class LineChart extends ApplicationFrame {
             series3.add(i, evolutionInterets.get(i));
             
         }
-        
-        
+
         dataset.addSeries(series1);
         dataset.addSeries(series2);
         dataset.addSeries(series3);
@@ -136,18 +133,7 @@ public class LineChart extends ApplicationFrame {
         return dataset;
     }
     
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    new LineChart().setVisible(true);
-                } catch (SQLException ex) {
-                    Logger.getLogger(LineChart.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        });
-    }
+    
     
     public static void init(int idClient) throws SQLException{
         simPret=new SimulationPret();

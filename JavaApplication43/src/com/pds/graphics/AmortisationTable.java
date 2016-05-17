@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -26,7 +27,7 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Nodaro
  */
-public class AmortisationTable extends javax.swing.JFrame {
+public class AmortisationTable extends JFrame {
     
     private JFrame frame;
     private SimulationPret simulationPret;
@@ -35,12 +36,12 @@ public class AmortisationTable extends javax.swing.JFrame {
     /**
      * Creates new form AmortisationTable
      */
-    public AmortisationTable() throws SQLException {
+    public AmortisationTable(int idClient) throws SQLException {
         initComponents();
         frame = (JFrame) SwingUtilities.getWindowAncestor(this);
         
         
-        this.setTitle("Tableau d'amortissement");
+        //this.setTitle("Tableau d'amortissement");
         
         //récupération des données dans la base, + peuplement de simulationpret
         calculPret=new CalculPret();
@@ -48,7 +49,7 @@ public class AmortisationTable extends javax.swing.JFrame {
         calculPret.setTauxDirecteur(td);
         simulationPret=new SimulationPret();
         simulationPret.setCalcPret(calculPret);
-        simulationPret.setAmortisationCalcPret(calculPret, 1,td);
+        simulationPret.setAmortisationCalcPret(calculPret, idClient,td);
         
         List<Double> capAmorti=new ArrayList<Double>();
         capAmorti=simulationPret.calcCapAmmort();   //capital amort
@@ -69,10 +70,10 @@ public class AmortisationTable extends javax.swing.JFrame {
         }
         jTable1.getColumnModel().getColumn(0).setPreferredWidth(20);        //taille des colonnes
         jTable1.getColumnModel().getColumn(1).setPreferredWidth(80);
-        jTable1.getColumnModel().getColumn(2).setPreferredWidth(60);
+        jTable1.getColumnModel().getColumn(2).setPreferredWidth(40);
         jTable1.getColumnModel().getColumn(3).setPreferredWidth(140);
         jTable1.getColumnModel().getColumn(4).setPreferredWidth(70);
-        jTable1.getColumnModel().getColumn(5).setPreferredWidth(60);
+        jTable1.getColumnModel().getColumn(5).setPreferredWidth(40);
         
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
         rightRenderer.setHorizontalAlignment(SwingConstants.CENTER);
@@ -80,8 +81,8 @@ public class AmortisationTable extends javax.swing.JFrame {
             jTable1.getColumnModel().getColumn(i).setCellRenderer(rightRenderer);   //centrer les valeurs du jtable
         ((DefaultTableCellRenderer)jTable1.getTableHeader().getDefaultRenderer())
                 .setHorizontalAlignment(JLabel.CENTER);         //centrer les titres du header
-        
-        
+        this.setVisible(true);
+        this.setSize(650, 500);
         
     }
     
@@ -146,14 +147,12 @@ public class AmortisationTable extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(22, 22, 22)
-                        .addComponent(jLabel1))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 746, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 22, Short.MAX_VALUE))
+                .addGap(22, 22, 22)
+                .addComponent(jLabel1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 621, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -161,8 +160,7 @@ public class AmortisationTable extends javax.swing.JFrame {
                 .addGap(8, 8, 8)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE))
         );
 
         pack();
@@ -217,7 +215,7 @@ public class AmortisationTable extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    new AmortisationTable().setVisible(true);
+                    new AmortisationTable(1).setVisible(true);
                 } catch (SQLException ex) {
                     Logger.getLogger(AmortisationTable.class.getName()).log(Level.SEVERE, null, ex);
                 }

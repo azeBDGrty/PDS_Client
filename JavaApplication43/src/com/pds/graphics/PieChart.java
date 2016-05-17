@@ -28,20 +28,20 @@ public class PieChart extends ApplicationFrame{
     private static SimulationPret simPret;
     
     
-    public PieChart(String title) throws SQLException {
-        super(title);
-        
-        setContentPane(createDemoPanel( ));
+    public PieChart( int idClient) throws SQLException {
+        super("Répartion des remboursements");
+        init(idClient);
+        //setContentPane(createDemoPanel( ));
+        //this.setSize( 560 , 367 );    
+      //RefineryUtilities.centerFrameOnScreen( this);    
+      //this.setVisible( true ); 
     }
-    private static PieDataset createDataset( ) throws SQLException 
+    public static PieDataset createDataset( ) throws SQLException 
    {
-      init(1);
+      
       double capitalAmorti=simPret.calcSum(simPret.calcCapAmmort());
       double assurance=simPret.calcSumAssurance();
       double interets=simPret.calcSum(simPret.calcInterets());
-      System.out.println("capAmorti:"+capitalAmorti);
-      System.out.println("assurance:"+assurance);
-      System.out.println("interets:"+interets);
       DefaultPieDataset dataset = new DefaultPieDataset( );
       dataset.setValue( "Capital" , capitalAmorti );  
       dataset.setValue( "Interets" , interets);   
@@ -74,11 +74,5 @@ public class PieChart extends ApplicationFrame{
       JFreeChart chart = createChart(createDataset( ) );  
       return new ChartPanel( chart ); 
    }
-   public static void main( String[ ] args ) throws SQLException
-   {
-      PieChart demo = new PieChart( "Répartion des remboursements" );  
-      demo.setSize( 560 , 367 );    
-      RefineryUtilities.centerFrameOnScreen( demo );    
-      demo.setVisible( true ); 
-   }
+
 }
