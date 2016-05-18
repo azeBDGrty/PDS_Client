@@ -199,6 +199,7 @@ public class SimulationPret {
         String sql = ("SELECT * FROM simul_pret,calcpret,taux_directeur WHERE id_client="+idClient +" AND simul_pret.id_calcPret=calcPret.id_calcPret "
                 + "AND calcpret.id_tauxDirecteur=taux_directeur.id_tauxDirecteur");
         ResultSet rs = st.executeQuery(sql);
+        //rajouter parsing xml
         if(rs.next()) {
             setMtPret(rs.getDouble("mt_pret"));
             setDureePret(rs.getInt("duree_pret"));
